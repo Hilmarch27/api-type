@@ -1,82 +1,59 @@
-import { Request, Response } from 'express'
-import { createSessionValidation, createUserValidation, refreshSessionValidation } from '../validations/auth.validation'
+import { NextFunction, Request, Response } from 'express'
+import {
+  createSessionValidation,
+  createUserValidation,
+  refreshSessionValidation
+} from '../validations/auth.validations'
 import { v4 as uuidv4 } from 'uuid'
-import { logger } from '../utils/logger'
+import { logger } from '../application/logger'
 import { checkPassword, hashing } from '../utils/hashing'
-import { createUser, findUserByEmail } from '../services/auth.service'
 import { signJWT, verifyJWT } from '../utils/jwt'
+import { CreateUserRequest, LoginUserRequest, RefreshTokenUserRequest } from '../models/user.model'
+import { UserService } from '../services/auth.service'
 
-export const registerUser = async (req: Request, res: Response) => {
-  req.body.user_id = uuidv4()
-  const { error, value } = createUserValidation(req.body)
-  if (error) {
-    console.error('Error caught in registerUser:', error)
-    logger.error('ERR: auth - register =', error)
-    return res.status(422).send({ status: false, statusCode: 422, message: 'Validation error', data: {} })
-  }
-  try {
-    value.password = `${hashing(value.password)}` // Assuming hashing function is correctly defined
-    await createUser(value)
-    return res.status(201).send({ status: true, statusCode: 201, message: 'success add new user' })
-  } catch (error) {
-    console.error('Error caught in registerUser:', error)
-    logger.error('ERR: auth - register = ', error)
-    return res.status(500).send({ status: false, statusCode: 500, message: 'Internal Server Error' })
-  }
-}
-
-export const createSession = async (req: Request, res: Response) => {
-  const { error, value } = createSessionValidation(req.body)
-  if (error) {
-    console.error('Error caught in createSession:', error)
-    console.error('ERR: auth - login first =', error)
-    return res.status(422).send({ status: false, statusCode: 422, message: 'Validation error', data: {} })
-  }
-  try {
-    const user: any = await findUserByEmail(value.email)
-    const isValid = checkPassword(value.password, user.password)
-
-    if (!isValid) {
-      return res.status(401).send({ status: false, statusCode: 401, message: 'Invalid email or password' })
+export class UserController {
+  static async register (req: Request, res: Response, next: NextFunction) {
+    try {
+      //? body req
+      const request: CreateUserRequest = req.body as CreateUserRequest
+      //? send to service
+      const response = await UserService.register(request)
+      //? send to client
+      res.status(200).json({
+        data: response
+      })
+    } catch (e) {
+      next(e)
     }
-
-    const accessToken = signJWT({ ...user }, { expiresIn: '4s' })
-
-    const refreshToken = signJWT({ ...user }, { expiresIn: '1y' })
-
-    return res
-      .status(200)
-      .send({ status: true, statusCode: 200, message: 'success login', data: { accessToken, refreshToken } })
-  } catch (error: any) {
-    console.error('Error caught in createSession:', error)
-    console.error('ERR: auth - login = ', error)
-    return res.status(500).send({ status: false, statusCode: 500, message: 'Internal Server Error' })
   }
-}
 
-export const refreshSession = async (req: Request, res: Response) => {
-  const { error, value } = refreshSessionValidation(req.body)
-  if (error) {
-    logger.error('ERR: auth - refresh session =', error)
-    return res.status(422).send({ status: false, statusCode: 422, message: 'Validation error' })
+  static async login (req: Request, res: Response, next: NextFunction) {
+    try {
+      //? body req
+      const request: LoginUserRequest = req.body as LoginUserRequest
+      //? send to service
+      const response = await UserService.login(request)
+      //? send to client
+      res.status(200).json({
+        data: response
+      })
+    } catch (e) {
+      next(e)
+    }
   }
-  try {
-    const { decoded }: any = verifyJWT(value.refreshToken)
-
-    const user = await findUserByEmail(decoded._doc.email)
-    if (!user) return false
-
-    const accessToken = signJWT(
-      {
-        ...user
-      },
-      { expiresIn: '1d' }
-    )
-    return res
-      .status(200)
-      .send({ status: true, statusCode: 200, message: 'success refresh session', data: { accessToken } })
-  } catch (error: any) {
-    console.error('Error caught in refresh session:', error)
-    return res.status(422).send({ status: false, statusCode: 422, message: 'Validation error' })
+  
+  static async refresh (req: Request, res: Response, next: NextFunction) {
+    try {
+      //? body req
+      const request: RefreshTokenUserRequest = req.body as RefreshTokenUserRequest
+      //? send to service
+      const response = await UserService.login(refresh)
+      //? send to client
+      res.status(200).json({
+        data: response
+      })
+    } catch (e) {
+      next(e)
+    }
   }
 }

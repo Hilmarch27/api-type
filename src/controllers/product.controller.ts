@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { logger } from '../utils/logger'
+import { logger } from '../application/logger'
 import { createProductValidation, updateProductValidation } from '../validations/product.validation'
 import {
   getProductFromDB,

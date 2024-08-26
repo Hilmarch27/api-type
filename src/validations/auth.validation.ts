@@ -1,31 +1,20 @@
-import Joi from 'joi'
-import UserType from '../types/user.type'
+import { z, ZodType } from 'zod'
 
-export const createUserValidation = (payload: UserType) => {
-  const schema = Joi.object({
-    user_id: Joi.string().required(),
-    email: Joi.string().required(),
-    name: Joi.string().required(),
-    password: Joi.string().required(),
-    role: Joi.string().allow('', null)
+export class UserValidation {
+  static readonly REGISTER: ZodType = z.object({
+    user_id: z.string().optional(),
+    name: z.string().min(1),
+    email: z.string().min(1),
+    role: z.string().optional(),
+    password: z.string().min(1)
   })
 
-  return schema.validate(payload)
-}
-
-export const createSessionValidation = (payload: UserType) => {
-  const schema = Joi.object({
-    email: Joi.string().required(),
-    password: Joi.string().required()
+  static readonly LOGIN: ZodType = z.object({
+    email: z.string().min(1),
+    password: z.string().min(1)
   })
 
-  return schema.validate(payload)
-}
-
-export const refreshSessionValidation = (payload: UserType) => {
-  const schema = Joi.object({
-    refreshToken: Joi.string().required()
+  static readonly REFRESH: ZodType = z.object({
+    refreshToken: z.string().min(1),
   })
-
-  return schema.validate(payload)
 }

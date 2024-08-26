@@ -1,31 +1,36 @@
-import mongoose from 'mongoose'
+import { User } from '@prisma/client'
 
-const userSchema = new mongoose.Schema(
-  {
-    user_id: {
-      type: String,
-      unique: true
-    },
-    email: {
-      type: String,
-      unique: true
-    },
-    name: {
-      type: String,
-      default: ''
-    },
-    password: {
-      type: String,
-      default: ''
-    },
-    role: {
-      type: String,
-      default: 'regular'
-    }
-  },
-  { timestamps: true }
-)
+export interface UserResponse {
+  user_id?: string
+  name: string
+  email: string
+  role?: string
+  created_at?: Date
+  updated_at?: Date
+  accessToken?: string
+  refreshToken?: string
+}
 
-const userModel = mongoose.model('user', userSchema)
+export interface CreateUserRequest {
+  email: string
+  name: string
+  password: string
+}
 
-export default userModel
+export interface LoginUserRequest {
+  email: string
+  password: string
+}
+
+export interface RefreshTokenUserRequest {
+  refreshToken: string
+}
+// transform user to user response
+export function toUserResponse(user: User, accessToken?: string, refreshToken?: string): UserResponse {
+  return {
+    name: user.name,
+    email: user.email,
+    accessToken,
+    refreshToken
+  }
+}

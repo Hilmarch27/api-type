@@ -1,8 +1,9 @@
 import { Router } from 'express'
-import { registerUser, createSession, refreshSession } from '../controllers/auth.controller'
+import { UserController } from '../controllers/auth.controller'
 
 export const AuthRouter: Router = Router()
 
-AuthRouter.post('/register', registerUser)
-AuthRouter.post('/login', createSession)
-AuthRouter.post('/refresh', refreshSession)
+// eslint-disable-next-line @typescript-eslint/unbound-method
+AuthRouter.post('/register', UserController.register)
+AuthRouter.post('/login', UserController.login)
+// AuthRouter.post('/refresh', refreshSession)
