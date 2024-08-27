@@ -25,7 +25,7 @@ export class UserService {
 
   static async login(request: LoginUserRequest): Promise<UserResponse> {
     const loginUserRequest = Validation.validate(UserValidation.LOGIN, request)
-    let user = await prismaClient.user.findUnique({
+    const user = await prismaClient.user.findUnique({
       where: {
         email: loginUserRequest.email
       }
@@ -35,7 +35,7 @@ export class UserService {
       throw new ResponseError(401, 'username or Password is wrong')
     }
 
-    const isMatch = await checkPassword(loginUserRequest.password, user.password)
+    const isMatch = checkPassword(loginUserRequest.password, user.password)
     if (!isMatch) {
       throw new ResponseError(401, 'username or Password is wrong')
     }

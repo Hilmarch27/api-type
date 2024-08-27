@@ -1,11 +1,11 @@
-import { Router } from 'express'
-import { createProduct, deleteProduct, getProduct, updateProduct } from '../controllers/product.controller'
-import { requireAdmin, requireUser } from '../middleware/auth'
+import { Router, Request, Response, NextFunction } from 'express'
+import { logger } from '../application/logger'
+import { requireUser } from '../middleware/auth'
 
 export const ProductRouter: Router = Router()
 
-ProductRouter.get('/', getProduct)
-ProductRouter.get('/:id', getProduct)
-ProductRouter.post('/', requireAdmin, createProduct)
-ProductRouter.put('/:id', requireAdmin, updateProduct)
-ProductRouter.delete('/:id', requireAdmin, deleteProduct)
+//check if server is running
+ProductRouter.get('/', requireUser, (req: Request, res: Response, next: NextFunction) => {
+  logger.info('success')
+  res.status(200).send('protected route')
+})

@@ -1,13 +1,4 @@
 import { NextFunction, Request, Response } from 'express'
-import {
-  createSessionValidation,
-  createUserValidation,
-  refreshSessionValidation
-} from '../validations/auth.validations'
-import { v4 as uuidv4 } from 'uuid'
-import { logger } from '../application/logger'
-import { checkPassword, hashing } from '../utils/hashing'
-import { signJWT, verifyJWT } from '../utils/jwt'
 import { CreateUserRequest, LoginUserRequest, RefreshTokenUserRequest } from '../models/user.model'
 import { UserService } from '../services/auth.service'
 
@@ -47,7 +38,7 @@ export class UserController {
       //? body req
       const request: RefreshTokenUserRequest = req.body as RefreshTokenUserRequest
       //? send to service
-      const response = await UserService.login(refresh)
+      const response = await UserService.refresh(request)
       //? send to client
       res.status(200).json({
         data: response

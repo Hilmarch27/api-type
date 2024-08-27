@@ -1,7 +1,7 @@
 /* eslint-disable  */
 import { Application, Router } from 'express'
-import {HealthRouter} from './health.route'
-import {ProductRouter} from './product.route'
+import { HealthRouter } from './health.route'
+import { ProductRouter } from './product.route'
 import { AuthRouter } from './auth.route'
 
 const _routes: Array<[string, Router]> = [

@@ -1,7 +1,7 @@
 import 'dotenv/config'
 
 const CONFIG = {
-  db: process.env.DB,
+  db: process.env.DATABASE_URL,
   jwt_public: `-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnTPbmHvRYtc/nAxsrjZa
 LOHK9tzNHnTyP31xG2Syy8jMr2HZ+lJ7sxyuNmUoxN6l8HvDzO0D2Y42lVg8udBx

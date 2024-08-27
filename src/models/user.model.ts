@@ -26,7 +26,7 @@ export interface RefreshTokenUserRequest {
   refreshToken: string
 }
 // transform user to user response
-export function toUserResponse(user: User, accessToken?: string, refreshToken?: string): UserResponse {
+export function toUserResponse (user: User, accessToken?: string, refreshToken?: string): UserResponse {
   return {
     name: user.name,
     email: user.email,

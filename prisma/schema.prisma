@@ -26,3 +26,8 @@ model User {
   @@index([user_id])
 }
 
+// model Blog {
+//   blog_id String @id @default(uuid())
+//   img_url String
+//   thubnail
+// }
