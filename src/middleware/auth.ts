@@ -10,7 +10,7 @@ export const requireUser = (req: Request, res: Response, next: NextFunction) => 
 
 export const requireAdmin = (req: Request, res: Response, next: NextFunction) => {
   const user = res.locals.user
-  if (!user || user._doc.role !== 'admin') {
+  if (!user || user.role !== 'admin') {
     return res.sendStatus(401)
   }
   return next()
