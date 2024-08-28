@@ -2,7 +2,10 @@ import { Request, Response, NextFunction } from 'express'
 import { verifyJWT } from '../utils/jwt'
 
 const deserializeToken = async (req: Request, res: Response, next: NextFunction) => {
-  const accessToken = req.headers.authorization?.replace(/^Bearer\s/, '')
+  // Ambil accessToken dari cookies
+  const accessToken = req.cookies.accessToken
+  console.log('accessToken:', accessToken)
+
   if (!accessToken) {
     return next()
   }
@@ -16,6 +19,7 @@ const deserializeToken = async (req: Request, res: Response, next: NextFunction)
   if (token.expired) {
     return next()
   }
+
   return next()
 }
 

@@ -5,6 +5,7 @@ import { routes } from '../routes'
 import { logger } from './logger'
 import cors from 'cors'
 import deserializeToken from '../middleware/deserializedToken'
+import cookieParser from 'cookie-parser'
 dotenv.config()
 
 export const app: Application = express()
@@ -12,6 +13,8 @@ const port: Number = 5000
 
 app.use(express.json())
 app.use(urlencoded({ extended: false }))
+// Tambahkan di app.ts
+app.use(cookieParser())
 
 app.use(errorMiddleware)
 

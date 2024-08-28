@@ -3,7 +3,7 @@ import { CreateUserRequest, LoginUserRequest, RefreshTokenUserRequest } from '..
 import { UserService } from '../services/auth.service'
 
 export class UserController {
-  static async register (req: Request, res: Response, next: NextFunction) {
+  static async register(req: Request, res: Response, next: NextFunction) {
     try {
       //? body req
       const request: CreateUserRequest = req.body as CreateUserRequest
@@ -18,30 +18,55 @@ export class UserController {
     }
   }
 
-  static async login (req: Request, res: Response, next: NextFunction) {
+  static async login(req: Request, res: Response, next: NextFunction) {
     try {
-      //? body req
       const request: LoginUserRequest = req.body as LoginUserRequest
-      //? send to service
       const response = await UserService.login(request)
-      //? send to client
+
+      // Set the access and refresh tokens as HTTP-only cookies
+      res.cookie('accessToken', response.accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', // Set to true in production
+        sameSite: 'strict',
+        maxAge: 4 * 60 * 1000 // 4 minutes (or match the JWT expiration)
+      })
+
+      res.cookie('refreshToken', response.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 365 * 24 * 60 * 60 * 1000 // 1 year
+      })
+
       res.status(200).json({
-        data: response
+        data: { name: response.name, email: response.email }
       })
     } catch (e) {
       next(e)
     }
   }
-  
-  static async refresh (req: Request, res: Response, next: NextFunction) {
+
+  static async refresh(req: Request, res: Response, next: NextFunction) {
     try {
-      //? body req
       const request: RefreshTokenUserRequest = req.body as RefreshTokenUserRequest
-      //? send to service
       const response = await UserService.refresh(request)
-      //? send to client
+
+      res.cookie('accessToken', response.accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 15 * 60 * 1000 // 15 minutes
+      })
+
+      res.cookie('refreshToken', response.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 365 * 24 * 60 * 60 * 1000 // 1 year
+      })
+
       res.status(200).json({
-        data: response
+        data: { name: response.name, email: response.email }
       })
     } catch (e) {
       next(e)
