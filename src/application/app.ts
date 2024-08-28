@@ -2,21 +2,17 @@ import * as dotenv from 'dotenv'
 import express, { Application, urlencoded } from 'express'
 import { errorMiddleware } from '../middleware/error.middleware'
 import { routes } from '../routes'
-import { logger } from './logger'
 import cors from 'cors'
 import deserializeToken from '../middleware/deserializedToken'
 import cookieParser from 'cookie-parser'
 dotenv.config()
 
 export const app: Application = express()
-const port: Number = 5000
 
 app.use(express.json())
 app.use(urlencoded({ extended: false }))
 // Tambahkan di app.ts
 app.use(cookieParser())
-
-app.use(errorMiddleware)
 
 //cors access hanfler
 app.use(cors())
@@ -30,7 +26,5 @@ app.use((req, res, next) => {
 app.use(deserializeToken)
 
 routes(app)
-
-app.listen(port, () => {
-  logger.info(`Server is running on port ${port}`)
-})
+// error handle for all routes
+app.use(errorMiddleware)

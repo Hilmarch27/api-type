@@ -3,5 +3,5 @@
         "src"
     ],
     "ext": "ts",
-    "exec": "pnpm exec ts-node ./src/application/app.ts"
+    "exec": "pnpm exec ts-node ./src/index.ts"
 }

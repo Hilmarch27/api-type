@@ -1,25 +1,35 @@
 import { Validation } from '../validations/validation'
-import {
-  CreateUserRequest,
-  LoginUserRequest,
-  RefreshTokenUserRequest,
-  toUserResponse,
-  UserResponse
-} from '../models/user.model'
+import { CreateUserRequest, LoginUserRequest, toUserResponse, UserResponse } from '../models/user.model'
 import { UserValidation } from '../validations/auth.validation'
 import { checkPassword, hashing } from '../utils/hashing'
 import { prismaClient } from '../application/database'
-import { ResponseError } from '../error/reponse-error'
+import { ResponseError } from '../error/reponse.error'
 import { signJWT, verifyJWT } from '../utils/jwt'
 import { JwtPayload } from 'jsonwebtoken'
+import { RequestWithCookies } from '../types/cookies.request'
 
 export class UserService {
   static async register(request: CreateUserRequest): Promise<UserResponse> {
     const registerRequest = Validation.validate(UserValidation.REGISTER, request)
+
+    // Periksa jika pengguna sudah ada
+    const userAlreadyExists = await prismaClient.user.findUnique({
+      where: {
+        email: registerRequest.email
+      }
+    })
+
+    // Lemparkan error jika pengguna sudah ada
+    if (userAlreadyExists) {
+      throw new ResponseError(401, 'email already exists')
+    }
+
+    // Jika tidak ada pengguna dengan email tersebut, lanjutkan proses registrasi
     registerRequest.password = `${hashing(registerRequest.password)}`
     const user = await prismaClient.user.create({
       data: registerRequest
     })
+
     return toUserResponse(user)
   }
 
@@ -51,18 +61,19 @@ export class UserService {
     return response
   }
 
-  static async refresh(request: RefreshTokenUserRequest): Promise<UserResponse> {
-    // Validate the refresh token request
-    const refreshTokenUserRequest = Validation.validate(UserValidation.REFRESH, request)
+  static async refresh(req: RequestWithCookies): Promise<UserResponse> {
+    const refreshToken = req.cookies?.refreshToken
 
-    // Verify the provided refresh token
-    const { valid, expired, decoded } = verifyJWT(refreshTokenUserRequest.refreshToken)
+    if (!refreshToken) {
+      throw new ResponseError(401, 'Refresh token is missing')
+    }
+
+    const { valid, expired, decoded } = verifyJWT(refreshToken)
 
     if (!valid || expired || !decoded) {
       throw new ResponseError(401, 'Invalid or expired refresh token')
     }
 
-    // Fetch user by email from the decoded token
     const user = await prismaClient.user.findUnique({
       where: { email: (decoded as JwtPayload).email }
     })
@@ -71,13 +82,9 @@ export class UserService {
       throw new ResponseError(401, 'User not found')
     }
 
-    // Generate a new access token and refresh token
     const accessToken = signJWT({ ...user }, { expiresIn: '15m' })
     const newRefreshToken = signJWT({ ...user }, { expiresIn: '1y' })
 
-    // Generate the user response and include tokens
-    const response = toUserResponse(user, accessToken, newRefreshToken)
-
-    return response
+    return toUserResponse(user, accessToken, newRefreshToken)
   }
 }

@@ -10,8 +10,8 @@ export class UserValidation {
   })
 
   static readonly LOGIN: ZodType = z.object({
-    email: z.string().min(1),
-    password: z.string().min(1)
+    email: z.string().email('Email is not valid'),
+    password: z.string().min(1, 'Password must not be empty')
   })
 
   static readonly REFRESH: ZodType = z.object({

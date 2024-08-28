@@ -1,7 +1,16 @@
-import { ZodType } from 'zod'
+import { ResponseError } from '../error/reponse.error'
+import { formatZodError } from '../utils/format.error.zod'
+import { ZodType, ZodError } from 'zod'
 
 export class Validation {
   static validate<T>(schema: ZodType, data: T): T {
-    return schema.parse(data)
+    try {
+      return schema.parse(data)
+    } catch (error) {
+      if (error instanceof ZodError) {
+        throw new ResponseError(400, 'Validation Error', formatZodError(error))
+      }
+      throw error // Lempar kembali jika bukan ZodError
+    }
   }
 }

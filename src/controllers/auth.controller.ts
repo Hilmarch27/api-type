@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
-import { CreateUserRequest, LoginUserRequest, RefreshTokenUserRequest } from '../models/user.model'
+import { CreateUserRequest, LoginUserRequest } from '../models/user.model'
 import { UserService } from '../services/auth.service'
+import { RequestWithCookies } from '../types/cookies.request'
 
 export class UserController {
   static async register(req: Request, res: Response, next: NextFunction) {
@@ -46,10 +47,9 @@ export class UserController {
     }
   }
 
-  static async refresh(req: Request, res: Response, next: NextFunction) {
+  static async refresh(req: RequestWithCookies, res: Response, next: NextFunction) {
     try {
-      const request: RefreshTokenUserRequest = req.body as RefreshTokenUserRequest
-      const response = await UserService.refresh(request)
+      const response = await UserService.refresh(req)
 
       res.cookie('accessToken', response.accessToken, {
         httpOnly: true,
