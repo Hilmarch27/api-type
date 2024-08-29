@@ -8,7 +8,7 @@ import { signJWT, verifyJWT } from '../utils/jwt'
 import { JwtPayload } from 'jsonwebtoken'
 import { RequestWithCookies } from '../types/cookies.request'
 
-export class UserService {
+export class AuthService {
   static async register(request: CreateUserRequest): Promise<UserResponse> {
     const registerRequest = Validation.validate(UserValidation.REGISTER, request)
 

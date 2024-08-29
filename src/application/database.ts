@@ -34,6 +34,22 @@ prismaClient.$on('info', (e: unknown) => {
   logger.info(e)
 })
 
-prismaClient.$on('query', (e: unknown) => {
-  logger.info(e)
+prismaClient.$on('query', (e: any) => {
+  const formattedQuery = e.query
+    .replace(/SELECT/g, '\n  SELECT')
+    .replace(/FROM/g, '\n  FROM')
+    .replace(/WHERE/g, '\n  WHERE')
+    .replace(/LIMIT/g, '\n  LIMIT')
+    .replace(/OFFSET/g, '\n  OFFSET')
+
+  const formattedLog = `
+  {
+    "timestamp": "${new Date().toISOString()}",
+    "query": "${formattedQuery}",
+    "params": ${e.params},
+    "duration": ${e.duration},
+    "target": "${e.target}"
+  }`.trim()
+
+  logger.info(formattedLog)
 })

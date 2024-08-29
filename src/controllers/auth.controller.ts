@@ -1,15 +1,15 @@
 import { NextFunction, Request, Response } from 'express'
 import { CreateUserRequest, LoginUserRequest } from '../models/user.model'
-import { UserService } from '../services/auth.service'
+import { AuthService } from '../services/auth.service'
 import { RequestWithCookies } from '../types/cookies.request'
 
-export class UserController {
+export class AuthController {
   static async register(req: Request, res: Response, next: NextFunction) {
     try {
       //? body req
       const request: CreateUserRequest = req.body as CreateUserRequest
       //? send to service
-      const response = await UserService.register(request)
+      const response = await AuthService.register(request)
       //? send to client
       res.status(200).json({
         data: response
@@ -22,7 +22,7 @@ export class UserController {
   static async login(req: Request, res: Response, next: NextFunction) {
     try {
       const request: LoginUserRequest = req.body as LoginUserRequest
-      const response = await UserService.login(request)
+      const response = await AuthService.login(request)
 
       // Set the access and refresh tokens as HTTP-only cookies
       res.cookie('accessToken', response.accessToken, {
@@ -49,7 +49,7 @@ export class UserController {
 
   static async refresh(req: RequestWithCookies, res: Response, next: NextFunction) {
     try {
-      const response = await UserService.refresh(req)
+      const response = await AuthService.refresh(req)
 
       res.cookie('accessToken', response.accessToken, {
         httpOnly: true,
